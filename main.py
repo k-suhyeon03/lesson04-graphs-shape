@@ -219,7 +219,6 @@ scatter_data = df[
     ["movieNm", "genre", "first_scrn", "total_audi"]
 ].dropna()
 
-# 음수 데이터 제거
 scatter_data = scatter_data[
     (scatter_data["first_scrn"] >= 0)
     & (scatter_data["total_audi"] >= 0)
@@ -254,13 +253,76 @@ fig4.update_traces(
 
 fig4.update_layout(
     height=650,
-    xaxis_title="개봉일 스크린수",
-    yaxis_title="총 관객",
     legend_title="장르"
 )
 
 st.plotly_chart(
     fig4,
+    use_container_width=True
+)
+
+st.markdown("---")
+
+st.subheader("이 그래프로 알 수 있는 것")
+st.write("")
+
+
+# ==========================================
+# 5. 장르별 총 관객 - 박스플롯
+# ==========================================
+st.header("5. 장르별 총 관객 분포")
+
+# 장르별 영화 편수 계산
+genre_movie_counts = df["genre"].value_counts()
+
+# 영화가 10편 이상인 장르만 선택
+valid_genres = genre_movie_counts[
+    genre_movie_counts >= 10
+].index
+
+box_data = df[
+    df["genre"].isin(valid_genres)
+][
+    ["genre", "movieNm", "total_audi"]
+].dropna()
+
+# 총 관객이 음수인 데이터 제거
+box_data = box_data[
+    box_data["total_audi"] >= 0
+].copy()
+
+fig5 = px.box(
+    box_data,
+    x="genre",
+    y="total_audi",
+    color="genre",
+    points="outliers",
+    custom_data=["movieNm"],
+    title="영화가 10편 이상인 장르의 총 관객 분포",
+    labels={
+        "genre": "장르",
+        "total_audi": "총 관객"
+    }
+)
+
+# 이상치 점에 마우스를 올렸을 때 영화명 표시
+fig5.update_traces(
+    hovertemplate=(
+        "<b>%{customdata[0]}</b><br>"
+        "총 관객: %{y:,}명"
+        "<extra></extra>"
+    )
+)
+
+fig5.update_layout(
+    height=650,
+    showlegend=False,
+    xaxis_title="장르",
+    yaxis_title="총 관객"
+)
+
+st.plotly_chart(
+    fig5,
     use_container_width=True
 )
 
