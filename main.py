@@ -223,3 +223,60 @@ st.markdown(
 st.info("이 그래프로 알 수 있는 것: ________________________________")
 
 st.divider()
+# ============================================================
+# 4. 개봉일 스크린 수와 총 관객의 관계
+# ============================================================
+
+st.header("4. 개봉일 스크린 수와 총 관객의 관계")
+
+# 숫자형으로 변환
+df["first_scrn"] = pd.to_numeric(
+    df["first_scrn"],
+    errors="coerce"
+)
+
+df["total_audi"] = pd.to_numeric(
+    df["total_audi"],
+    errors="coerce"
+)
+
+# 필요한 데이터가 있는 행만 사용
+scatter_df = df.dropna(
+    subset=["first_scrn", "total_audi", "movieNm", "genre"]
+)
+
+fig4 = px.scatter(
+    scatter_df,
+    x="first_scrn",
+    y="total_audi",
+    color="genre",
+    hover_name="movieNm",
+    title="개봉일 스크린 수와 총 관객의 관계",
+    labels={
+        "first_scrn": "개봉일 스크린 수",
+        "total_audi": "총 관객 수",
+        "genre": "장르"
+    }
+)
+
+fig4.update_traces(
+    marker=dict(size=9),
+    hovertemplate=(
+        "<b>%{hovertext}</b><br>"
+        "개봉일 스크린 수: %{x:,.0f}개<br>"
+        "총 관객 수: %{y:,.0f}명"
+        "<extra></extra>"
+    )
+)
+
+fig4.update_layout(
+    xaxis_title="개봉일 스크린 수",
+    yaxis_title="총 관객 수",
+    margin=dict(t=70, b=50, l=50, r=30)
+)
+
+st.plotly_chart(fig4, use_container_width=True)
+
+st.info("이 그래프로 알 수 있는 것: ________________________________")
+
+st.divider()
