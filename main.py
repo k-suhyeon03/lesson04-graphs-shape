@@ -1,3 +1,4 @@
+```python
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -31,7 +32,7 @@ DATA_URL = (
 def load_data():
     df = pd.read_csv(DATA_URL)
 
-    # 여러 장르가 |로 연결되어 있으면 첫 번째 장르만 사용
+    # 장르가 여러 개라면 첫 번째 장르만 사용
     df["genre"] = (
         df["genre"]
         .fillna("미상")
@@ -88,10 +89,7 @@ fig1.update_traces(
 
 fig1.update_layout(height=550)
 
-st.plotly_chart(
-    fig1,
-    use_container_width=True
-)
+st.plotly_chart(fig1, use_container_width=True)
 
 st.markdown("---")
 st.subheader("이 그래프로 알 수 있는 것")
@@ -126,10 +124,7 @@ fig2.update_layout(
     height=700
 )
 
-st.plotly_chart(
-    fig2,
-    use_container_width=True
-)
+st.plotly_chart(fig2, use_container_width=True)
 
 st.markdown("---")
 st.subheader("이 그래프로 알 수 있는 것")
@@ -185,10 +180,7 @@ fig3.update_layout(
     yaxis_title="영화 편수"
 )
 
-st.plotly_chart(
-    fig3,
-    use_container_width=True
-)
+st.plotly_chart(fig3, use_container_width=True)
 
 max_audi_row = hist_data.loc[
     hist_data["total_audi"].idxmax()
@@ -255,10 +247,7 @@ fig4.update_layout(
     legend_title="장르"
 )
 
-st.plotly_chart(
-    fig4,
-    use_container_width=True
-)
+st.plotly_chart(fig4, use_container_width=True)
 
 st.markdown("---")
 st.subheader("이 그래프로 알 수 있는 것")
@@ -272,7 +261,6 @@ st.header("5. 장르별 총 관객 분포")
 
 genre_movie_counts = df["genre"].value_counts()
 
-# 영화가 10편 이상인 장르만 선택
 valid_genres = genre_movie_counts[
     genre_movie_counts >= 10
 ].index
@@ -316,10 +304,7 @@ fig5.update_layout(
     yaxis_title="총 관객"
 )
 
-st.plotly_chart(
-    fig5,
-    use_container_width=True
-)
+st.plotly_chart(fig5, use_container_width=True)
 
 st.markdown("---")
 st.subheader("이 그래프로 알 수 있는 것")
@@ -385,10 +370,7 @@ fig6.update_layout(
     legend_title="장르"
 )
 
-st.plotly_chart(
-    fig6,
-    use_container_width=True
-)
+st.plotly_chart(fig6, use_container_width=True)
 
 st.markdown("---")
 st.subheader("이 그래프로 알 수 있는 것")
@@ -404,7 +386,6 @@ sunburst_data = df[
     ["nation", "genre", "movieNm"]
 ].copy()
 
-# 결측값 처리
 sunburst_data["nation"] = (
     sunburst_data["nation"]
     .fillna("미상")
@@ -419,12 +400,10 @@ sunburst_data["genre"] = (
     .str.strip()
 )
 
-# 영화명이 없는 행 제거
 sunburst_data = sunburst_data[
     sunburst_data["movieNm"].notna()
 ].copy()
 
-# 국가 → 장르 순서로 선버스트 생성
 fig7 = px.sunburst(
     sunburst_data,
     path=["nation", "genre"],
@@ -449,8 +428,62 @@ fig7.update_layout(
     )
 )
 
+st.plotly_chart(fig7, use_container_width=True)
+
+st.markdown("---")
+st.subheader("이 그래프로 알 수 있는 것")
+st.write("")
+
+
+# ==========================================
+# 8. 개봉일 스크린수와 첫 주 관객 - 산점도
+# ==========================================
+question = "개봉일 스크린수가 많을수록 첫 주 관객도 많은가?"
+
+st.header("8. " + question)
+
+scatter_week_data = df[
+    ["movieNm", "first_scrn", "first_week_audi"]
+].dropna()
+
+scatter_week_data = scatter_week_data[
+    (scatter_week_data["first_scrn"] >= 0)
+    & (scatter_week_data["first_week_audi"] >= 0)
+].copy()
+
+fig8 = px.scatter(
+    scatter_week_data,
+    x="first_scrn",
+    y="first_week_audi",
+    hover_name="movieNm",
+    title=question,
+    labels={
+        "first_scrn": "개봉일 스크린 수",
+        "first_week_audi": "첫 주 관객 수"
+    }
+)
+
+fig8.update_traces(
+    marker=dict(
+        size=10,
+        opacity=0.75
+    ),
+    hovertemplate=(
+        "<b>%{hovertext}</b><br>"
+        "개봉일 스크린 수: %{x:,}개<br>"
+        "첫 주 관객 수: %{y:,}명"
+        "<extra></extra>"
+    )
+)
+
+fig8.update_layout(
+    height=650,
+    xaxis_title="개봉일 스크린 수",
+    yaxis_title="첫 주 관객 수"
+)
+
 st.plotly_chart(
-    fig7,
+    fig8,
     use_container_width=True
 )
 
@@ -467,4 +500,4 @@ with st.expander("📋 데이터 확인하기"):
         df,
         use_container_width=True
     )
-
+```
