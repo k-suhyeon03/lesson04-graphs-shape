@@ -31,7 +31,7 @@ DATA_URL = (
 def load_data():
     df = pd.read_csv(DATA_URL)
 
-    # 장르가 여러 개라면 첫 번째 장르만 사용
+    # 여러 장르가 |로 연결되어 있으면 첫 번째 장르만 사용
     df["genre"] = (
         df["genre"]
         .fillna("미상")
@@ -86,9 +86,7 @@ fig1.update_traces(
     )
 )
 
-fig1.update_layout(
-    height=550
-)
+fig1.update_layout(height=550)
 
 st.plotly_chart(
     fig1,
@@ -96,7 +94,6 @@ st.plotly_chart(
 )
 
 st.markdown("---")
-
 st.subheader("이 그래프로 알 수 있는 것")
 st.write("")
 
@@ -135,7 +132,6 @@ st.plotly_chart(
 )
 
 st.markdown("---")
-
 st.subheader("이 그래프로 알 수 있는 것")
 st.write("")
 
@@ -162,7 +158,6 @@ bins = pd.cut(
 )
 
 bin_counts = bins.value_counts().sort_index()
-
 most_common_bin = bin_counts.idxmax()
 
 fig3 = px.histogram(
@@ -203,7 +198,6 @@ max_movie_name = max_audi_row["movieNm"]
 max_audi = int(max_audi_row["total_audi"])
 
 st.markdown("---")
-
 st.subheader("이 그래프로 알 수 있는 것")
 
 st.write(
@@ -216,7 +210,7 @@ st.write(
 
 
 # ==========================================
-# 4. 개봉일 스크린수와 총 관객의 관계 - 산점도
+# 4. 개봉일 스크린수와 총 관객 - 산점도
 # ==========================================
 st.header("4. 개봉일 스크린수와 총 관객의 관계")
 
@@ -267,7 +261,6 @@ st.plotly_chart(
 )
 
 st.markdown("---")
-
 st.subheader("이 그래프로 알 수 있는 것")
 st.write("")
 
@@ -329,7 +322,6 @@ st.plotly_chart(
 )
 
 st.markdown("---")
-
 st.subheader("이 그래프로 알 수 있는 것")
 st.write("")
 
@@ -349,7 +341,6 @@ bubble_data = df[
     ]
 ].dropna()
 
-# 음수 데이터 제거
 bubble_data = bubble_data[
     (bubble_data["first_scrn"] >= 0)
     & (bubble_data["total_audi"] >= 0)
@@ -400,7 +391,70 @@ st.plotly_chart(
 )
 
 st.markdown("---")
+st.subheader("이 그래프로 알 수 있는 것")
+st.write("")
 
+
+# ==========================================
+# 7. 제작 국가 → 장르 - 선버스트 그래프
+# ==========================================
+st.header("7. 제작 국가와 장르별 영화 편수")
+
+sunburst_data = df[
+    ["nation", "genre", "movieNm"]
+].copy()
+
+# 결측값 처리
+sunburst_data["nation"] = (
+    sunburst_data["nation"]
+    .fillna("미상")
+    .astype(str)
+    .str.strip()
+)
+
+sunburst_data["genre"] = (
+    sunburst_data["genre"]
+    .fillna("미상")
+    .astype(str)
+    .str.strip()
+)
+
+# 영화명이 없는 행 제거
+sunburst_data = sunburst_data[
+    sunburst_data["movieNm"].notna()
+].copy()
+
+# 국가 → 장르 순서로 선버스트 생성
+fig7 = px.sunburst(
+    sunburst_data,
+    path=["nation", "genre"],
+    title="제작 국가 → 장르별 영화 편수"
+)
+
+fig7.update_traces(
+    hovertemplate=(
+        "<b>%{label}</b><br>"
+        "영화 편수: %{value}편"
+        "<extra></extra>"
+    )
+)
+
+fig7.update_layout(
+    height=700,
+    margin=dict(
+        t=70,
+        b=20,
+        l=20,
+        r=20
+    )
+)
+
+st.plotly_chart(
+    fig7,
+    use_container_width=True
+)
+
+st.markdown("---")
 st.subheader("이 그래프로 알 수 있는 것")
 st.write("")
 
