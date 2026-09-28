@@ -52,6 +52,11 @@ def load_data():
         errors="coerce"
     )
 
+    df["first_week_audi"] = pd.to_numeric(
+        df["first_week_audi"],
+        errors="coerce"
+    )
+
     return df
 
 
@@ -272,7 +277,6 @@ st.write("")
 # ==========================================
 st.header("5. 장르별 총 관객 분포")
 
-# 장르별 영화 편수 계산
 genre_movie_counts = df["genre"].value_counts()
 
 # 영화가 10편 이상인 장르만 선택
@@ -286,7 +290,6 @@ box_data = df[
     ["genre", "movieNm", "total_audi"]
 ].dropna()
 
-# 총 관객이 음수인 데이터 제거
 box_data = box_data[
     box_data["total_audi"] >= 0
 ].copy()
@@ -305,7 +308,6 @@ fig5 = px.box(
     }
 )
 
-# 이상치 점에 마우스를 올렸을 때 영화명 표시
 fig5.update_traces(
     hovertemplate=(
         "<b>%{customdata[0]}</b><br>"
@@ -323,6 +325,77 @@ fig5.update_layout(
 
 st.plotly_chart(
     fig5,
+    use_container_width=True
+)
+
+st.markdown("---")
+
+st.subheader("이 그래프로 알 수 있는 것")
+st.write("")
+
+
+# ==========================================
+# 6. 첫 주 관객을 크기로 나타낸 버블 그래프
+# ==========================================
+st.header("6. 개봉일 스크린수와 총 관객 - 첫 주 관객 버블 그래프")
+
+bubble_data = df[
+    [
+        "movieNm",
+        "genre",
+        "first_scrn",
+        "total_audi",
+        "first_week_audi"
+    ]
+].dropna()
+
+# 음수 데이터 제거
+bubble_data = bubble_data[
+    (bubble_data["first_scrn"] >= 0)
+    & (bubble_data["total_audi"] >= 0)
+    & (bubble_data["first_week_audi"] >= 0)
+].copy()
+
+fig6 = px.scatter(
+    bubble_data,
+    x="first_scrn",
+    y="total_audi",
+    size="first_week_audi",
+    color="genre",
+    hover_name="movieNm",
+    size_max=55,
+    title="개봉일 스크린수와 총 관객의 관계",
+    labels={
+        "first_scrn": "개봉일 스크린수",
+        "total_audi": "총 관객",
+        "first_week_audi": "첫 주 관객",
+        "genre": "장르"
+    }
+)
+
+fig6.update_traces(
+    marker=dict(
+        opacity=0.7
+    ),
+    hovertemplate=(
+        "<b>%{hovertext}</b><br>"
+        "장르: %{fullData.name}<br>"
+        "개봉일 스크린수: %{x:,}개<br>"
+        "총 관객: %{y:,}명<br>"
+        "첫 주 관객: %{marker.size:,}명"
+        "<extra></extra>"
+    )
+)
+
+fig6.update_layout(
+    height=700,
+    xaxis_title="개봉일 스크린수",
+    yaxis_title="총 관객",
+    legend_title="장르"
+)
+
+st.plotly_chart(
+    fig6,
     use_container_width=True
 )
 
